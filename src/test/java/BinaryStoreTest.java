@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.nio.file.FileSystem;
+import java.util.function.Supplier;
 
 /**
  * Created by Selim on 10.03.2018.
@@ -76,5 +77,19 @@ public class BinaryStoreTest {
 
     @Test
     public void getAllShouldBeCorrect() {
+        binaryStore.put("lion".getBytes());
+        int objectCount = 0;
+        for (Supplier<byte[]> dataSupplier : binaryStore.getAll()) {
+            objectCount++;
+        }
+        Assert.assertTrue("Number of stored objects was wrong",
+                objectCount == 1);
+        objectCount = 0;
+        binaryStore.put("tiger".getBytes());
+        for (Supplier<byte[]> dataSupplier : binaryStore.getAll()) {
+            objectCount++;
+        }
+        Assert.assertTrue("Number of stored objects was wrong",
+                objectCount == 2);
     }
 }
