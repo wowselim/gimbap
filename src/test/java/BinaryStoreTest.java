@@ -1,5 +1,5 @@
 import co.selim.gimbap.BinaryStore;
-import co.selim.gimbap.Store;
+import co.selim.gimbap.api.StreamingStore;
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -7,6 +7,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.util.function.Supplier;
 
@@ -15,7 +17,7 @@ import java.util.function.Supplier;
  */
 public class BinaryStoreTest {
     private static FileSystem inMemoryFileSystem;
-    private static Store<byte[]> binaryStore;
+    private static StreamingStore<byte[]> binaryStore;
 
     @BeforeClass
     public static void initStore() throws Exception {
@@ -41,7 +43,7 @@ public class BinaryStoreTest {
     }
 
     @Test
-    public void savedObjectShouldBeCorrect() {
+    public void savedObjectShouldHaveCorrectData() {
         byte[] data = "ocelot".getBytes();
         String id = binaryStore.put(data);
         Assert.assertArrayEquals("Object was not stored correctly",
@@ -67,7 +69,7 @@ public class BinaryStoreTest {
     }
 
     @Test
-    public void keySetShouldBeCorrect() {
+    public void keySetSizeShouldBeCorrect() {
         Assert.assertTrue("Store was not empty",
                 binaryStore.keySet().size() == 0);
         binaryStore.put("axolotl".getBytes());
@@ -76,7 +78,7 @@ public class BinaryStoreTest {
     }
 
     @Test
-    public void getAllShouldBeCorrect() {
+    public void getAllShouldReturnAllObjects() {
         binaryStore.put("lion".getBytes());
         int objectCount = 0;
         for (Supplier<byte[]> dataSupplier : binaryStore.getAll()) {
@@ -91,5 +93,36 @@ public class BinaryStoreTest {
         }
         Assert.assertTrue("Number of stored objects was wrong",
                 objectCount == 2);
+    }
+
+    /*
+     * Streaming tests
+     */
+    @Test
+    public void streamSavedObjectShouldExist() {
+        InputStream dataIn = new ByteArrayInputStream("squirrel".getBytes());
+        String id = binaryStore.putStream(dataIn);
+        boolean exists = binaryStore.exists(id);
+        Assert.assertTrue("Object was not stored", exists);
+    }
+
+    @Test
+    public void streamSavedObjectShouldHaveCorrectData() {
+        byte[] data = "chipmunk".getBytes();
+        InputStream dataIn = new ByteArrayInputStream(data);
+        String id = binaryStore.putStream(dataIn);
+        Assert.assertArrayEquals("Object was not stored correctly",
+                data,
+                binaryStore.get(id));
+    }
+
+    @Test
+    public void streamSavedObjectShouldBeUpdated() {
+        String id = binaryStore.put("chameleon".getBytes());
+        byte[] data = "gnu".getBytes();
+        binaryStore.updateStream(id, new ByteArrayInputStream(data));
+        Assert.assertArrayEquals("Object was not updated correctly",
+                data,
+                binaryStore.get(id));
     }
 }

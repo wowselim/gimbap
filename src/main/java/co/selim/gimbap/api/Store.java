@@ -1,4 +1,4 @@
-package co.selim.gimbap;
+package co.selim.gimbap.api;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -8,7 +8,7 @@ import java.util.function.Supplier;
  *
  * @param <T> the type of objects stored in this Store.
  */
-public interface Store<T> {
+public interface Store<T> extends AutoCloseable {
     /**
      * Stores an object in this Store.
      *
