@@ -34,8 +34,16 @@ public class OSSStore implements StreamingStore<byte[]> {
 
     @Override
     public String putStream(InputStream inputStream) {
-        String id = IDGenerator.generate(idLength);
+        String id = getNewId();
         return doPutStream(id, inputStream);
+    }
+
+    private String getNewId() {
+        String id = IDGenerator.generate(idLength);
+        while (exists(id)) {
+            id = IDGenerator.generate(idLength);
+        }
+        return id;
     }
 
     private String doPutStream(String id, InputStream inputStream) {
@@ -67,7 +75,7 @@ public class OSSStore implements StreamingStore<byte[]> {
 
     @Override
     public String put(byte[] object) {
-        String id = IDGenerator.generate(idLength);
+        String id = getNewId();
         return doPut(id, object);
     }
 
