@@ -5,6 +5,8 @@ Optional cloud extensions are available.
 
 ## Using gimbap
 
+First, add gimbap to your dependencies using the [jitpack repository](https://jitpack.io/#wowselim/gimbap).
+
 ### For small objects
 ```java
 Store<byte[]> binaryStore = new BinaryStore();
