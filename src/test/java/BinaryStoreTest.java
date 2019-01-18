@@ -70,11 +70,9 @@ public class BinaryStoreTest {
 
     @Test
     public void keySetSizeShouldBeCorrect() {
-        Assert.assertTrue("Store was not empty",
-                binaryStore.keySet().size() == 0);
+        Assert.assertEquals("Store was not empty", 0, binaryStore.keySet().size());
         binaryStore.put("axolotl".getBytes());
-        Assert.assertTrue("Number of stored objects was wrong",
-                binaryStore.keySet().size() == 1);
+        Assert.assertEquals("Number of stored objects was wrong", 1, binaryStore.keySet().size());
     }
 
     @Test
@@ -84,15 +82,13 @@ public class BinaryStoreTest {
         for (Supplier<byte[]> dataSupplier : binaryStore.getAll()) {
             objectCount++;
         }
-        Assert.assertTrue("Number of stored objects was wrong",
-                objectCount == 1);
+        Assert.assertEquals("Number of stored objects was wrong", 1, objectCount);
         objectCount = 0;
         binaryStore.put("tiger".getBytes());
         for (Supplier<byte[]> dataSupplier : binaryStore.getAll()) {
             objectCount++;
         }
-        Assert.assertTrue("Number of stored objects was wrong",
-                objectCount == 2);
+        Assert.assertEquals("Number of stored objects was wrong", 2, objectCount);
     }
 
     /*
