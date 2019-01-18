@@ -1,7 +1,8 @@
 # gimbap [![Build Status](https://travis-ci.org/wowselim/gimbap.svg?branch=master)](https://travis-ci.org/wowselim/gimbap)
 
 Disk-backed binary storage that supports all CRUD operations.
-Optional cloud extensions are available.
+Optional cloud extensions for aliyun-oss or s3 are available.
+All s3 compatible object stores should be supported with the latter.
 
 ## Using gimbap
 
@@ -31,7 +32,7 @@ System.out.println(new String(data));
 ```
 
 ### Using Alibaba Cloud Object Storage Service (streaming supported)
-**Add version 3.1.0 of the [OSS SDK](https://github.com/aliyun/aliyun-oss-java-sdk)
+**Add version 3.4.0 of the [OSS SDK](https://github.com/aliyun/aliyun-oss-java-sdk)
 to your dependencies.**
 
 ```java
