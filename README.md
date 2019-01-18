@@ -38,12 +38,20 @@ to your dependencies.**
 ```java
 StreamingStore<byte[]> binaryStore = new OSSStore("endpoint",
         "bucketName",
-        "accessKeyId",
-        "accessKeySecret");
+        defaultCredentialProvider);
 
 String id = binaryStore.put("gimbap".getBytes());
 byte[] data = binaryStore.get(id);
 
 System.out.println(new String(data));
 // prints gimbap
+```
+
+### Using the S3 SDK
+**Add version 1.X.X of the AWS SDK to your dependencies.**
+
+```java
+Store<byte[]> binaryStore = new S3Store(endpointConfiguration,
+        awsStaticCredentialsProvider,
+        "bucketName");
 ```

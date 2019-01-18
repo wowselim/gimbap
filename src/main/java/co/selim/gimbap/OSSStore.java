@@ -5,7 +5,6 @@ import co.selim.gimbap.util.IDGenerator;
 import co.selim.gimbap.util.IOStreamUtils;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.common.auth.CredentialsProvider;
 import com.aliyun.oss.common.auth.DefaultCredentialProvider;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.OSSObjectSummary;
@@ -26,9 +25,8 @@ public class OSSStore implements StreamingStore<byte[]> {
     private final String bucketName;
     private final int idLength = 24;
 
-    public OSSStore(String endpoint, String bucketName, String accessKeyId, String accessKeySecret) {
-        CredentialsProvider credentialsProvider = new DefaultCredentialProvider(accessKeyId, accessKeySecret);
-        this.client = new OSSClientBuilder().build(endpoint, credentialsProvider);
+    public OSSStore(String endpoint, String bucketName, DefaultCredentialProvider credentialProvider) {
+        this.client = new OSSClientBuilder().build(endpoint, credentialProvider);
         this.bucketName = bucketName;
     }
 
