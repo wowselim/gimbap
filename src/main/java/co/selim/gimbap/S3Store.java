@@ -26,13 +26,8 @@ public class S3Store implements Store<byte[]> {
     private final String bucketName;
     private final int idLength = 24;
 
-    public S3Store(AwsClientBuilder.EndpointConfiguration endpointConfiguration,
-                   AWSStaticCredentialsProvider credentialsProvider,
-                   String bucketName) {
-        this.s3Client = AmazonS3ClientBuilder.standard()
-                .withEndpointConfiguration(endpointConfiguration)
-                .withCredentials(credentialsProvider)
-                .build();
+    public S3Store(AmazonS3 s3Client, String bucketName) {
+        this.s3Client = s3Client;
         this.bucketName = bucketName;
     }
 

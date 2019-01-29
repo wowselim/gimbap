@@ -3,31 +3,29 @@ package co.selim.gimbap;
 import co.selim.gimbap.api.StreamingStore;
 import co.selim.gimbap.util.IDGenerator;
 import co.selim.gimbap.util.IOStreamUtils;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.common.auth.DefaultCredentialProvider;
-import com.aliyun.oss.model.OSSObject;
-import com.aliyun.oss.model.OSSObjectSummary;
-import com.aliyun.oss.model.PutObjectRequest;
+import io.minio.MinioClient;
+import io.minio.Result;
+import io.minio.messages.Item;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * An OSS-backed StreamingStore implementation.
+ * A Minio-backed StreamingStore implementation.
  * This implementation does not allow updates on objects that do not exist.
  */
-public class OSSStore implements StreamingStore<byte[]> {
-    private final OSS client;
+public class MinioStore implements StreamingStore<byte[]> {
+    private final MinioClient minioClient;
     private final String bucketName;
-    private final int idLength = 24;
+    private final Supplier<String> idSupplier = () -> IDGenerator.generate(24);
 
-    public OSSStore(OSS client, String bucketName) {
-        this.client = client;
+    public MinioStore(MinioClient minioClient, String bucketName) {
+        this.minioClient = minioClient;
         this.bucketName = bucketName;
     }
 
@@ -38,29 +36,35 @@ public class OSSStore implements StreamingStore<byte[]> {
     }
 
     private String getNewId() {
-        String id = IDGenerator.generate(idLength);
+        String id = idSupplier.get();
         while (exists(id)) {
-            id = IDGenerator.generate(idLength);
+            id = idSupplier.get();
         }
         return id;
     }
 
     private String doPutStream(String id, InputStream inputStream) {
-        PutObjectRequest putRequest = new PutObjectRequest(bucketName, id, inputStream);
-        client.putObject(putRequest);
+        try {
+            minioClient.putObject(bucketName, id, inputStream, "application/octet-stream");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return id;
     }
 
     @Override
     public InputStream getStream(String id) {
-        OSSObject object = client.getObject(bucketName, id);
-        return object.getObjectContent();
+        try {
+            return minioClient.getObject(bucketName, id);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Iterable<Supplier<InputStream>> getAllStream() {
         return keySet().stream()
-                .map(key -> (Supplier<InputStream>) () -> OSSStore.this.getStream(key))
+                .map(key -> (Supplier<InputStream>) () -> MinioStore.this.getStream(key))
                 .collect(Collectors.toList());
     }
 
@@ -75,17 +79,13 @@ public class OSSStore implements StreamingStore<byte[]> {
     @Override
     public String put(byte[] object) {
         String id = getNewId();
-        return doPut(id, object);
-    }
-
-    private String doPut(String id, byte[] object) {
         return doPutStream(id, new ByteArrayInputStream(object));
     }
 
     @Override
     public byte[] get(String id) {
-        try (OSSObject object = client.getObject(bucketName, id)) {
-            return IOStreamUtils.getBytesFromInputStream(object.getObjectContent());
+        try (InputStream objectInputStream = getStream(id)) {
+            return IOStreamUtils.getBytesFromInputStream(objectInputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -94,7 +94,7 @@ public class OSSStore implements StreamingStore<byte[]> {
     @Override
     public Iterable<Supplier<byte[]>> getAll() {
         return keySet().stream()
-                .map(key -> (Supplier<byte[]>) () -> OSSStore.this.get(key))
+                .map(key -> (Supplier<byte[]>) () -> MinioStore.this.get(key))
                 .collect(Collectors.toList());
     }
 
@@ -103,32 +103,40 @@ public class OSSStore implements StreamingStore<byte[]> {
         if (!exists(id)) {
             throw new IllegalStateException("The target object does not exist");
         }
-        doPut(id, object);
+        doPutStream(id, new ByteArrayInputStream(object));
     }
 
     @Override
     public void delete(String id) {
-        client.deleteObject(bucketName, id);
+        try {
+            minioClient.removeObject(bucketName, id);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Set<String> keySet() {
-        return client.listObjects(bucketName).getObjectSummaries().stream()
-                .map(OSSObjectSummary::getKey)
-                .collect(Collectors.toSet());
+        try {
+            Set<String> keySet = new HashSet<>();
+            for (Result<Item> itemResult : minioClient.listObjects(bucketName)) {
+                keySet.add(itemResult.get().objectName());
+            }
+            return keySet;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean exists(String id) {
-        return client.doesObjectExist(bucketName, id);
+        return keySet().contains(id);
     }
 
     /**
-     * Closes the connection to the OSS endpoint and all underlying resources.
-     * Behavior after calling close is undefined.
+     * Does nothing.
      */
     @Override
     public void close() {
-        client.shutdown();
     }
 }

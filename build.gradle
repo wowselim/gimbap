@@ -1,5 +1,5 @@
 group 'co.selim'
-version '2.0.0'
+version '2.1.0'
 
 apply plugin: 'java'
 
@@ -13,6 +13,7 @@ repositories {
 dependencies {
     compileOnly('com.aliyun.oss:aliyun-sdk-oss:3.4.0')
     compileOnly('com.amazonaws:aws-java-sdk-s3:1.11.483')
+    compileOnly('io.minio:minio:6.0.0')
     testImplementation('junit:junit:4.12')
     testImplementation('com.github.marschall:memoryfilesystem:1.2.0')
 }
