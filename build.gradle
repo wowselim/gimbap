@@ -12,9 +12,9 @@ repositories {
 
 
 dependencies {
-    compileOnly('com.aliyun.oss:aliyun-sdk-oss:3.4.0')
-    compileOnly('com.amazonaws:aws-java-sdk-s3:1.11.483')
-    compileOnly('io.minio:minio:6.0.0')
+    compileOnly('com.aliyun.oss:aliyun-sdk-oss:3.4.2')
+    compileOnly('com.amazonaws:aws-java-sdk-s3:1.11.536')
+    compileOnly('io.minio:minio:6.0.6')
     testImplementation('junit:junit:4.12')
     testImplementation('com.github.marschall:memoryfilesystem:1.2.0')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
