@@ -2,21 +2,18 @@ package co.selim.gimbap;
 
 import co.selim.gimbap.api.Store;
 import co.selim.gimbap.util.IDGenerator;
-import co.selim.gimbap.util.IOStreamUtils;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static co.selim.gimbap.util.IOStreamUtilsKt.getBytesFromInputStream;
 
 /**
  * An S3-backed Store implementation. This implementation does not allow updates on objects that do not exist.
@@ -48,12 +45,8 @@ public class S3Store implements Store<byte[]> {
 
     @Override
     public byte[] get(String id) {
-        try {
-            S3Object object = s3Client.getObject(bucketName, id);
-            return IOStreamUtils.getBytesFromInputStream(object.getObjectContent());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        S3Object object = s3Client.getObject(bucketName, id);
+        return getBytesFromInputStream(object.getObjectContent());
     }
 
     @Override

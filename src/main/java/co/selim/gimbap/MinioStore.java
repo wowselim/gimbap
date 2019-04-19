@@ -2,7 +2,6 @@ package co.selim.gimbap;
 
 import co.selim.gimbap.api.StreamingStore;
 import co.selim.gimbap.util.IDGenerator;
-import co.selim.gimbap.util.IOStreamUtils;
 import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.messages.Item;
@@ -14,6 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static co.selim.gimbap.util.IOStreamUtilsKt.getBytesFromInputStream;
 
 /**
  * A Minio-backed StreamingStore implementation.
@@ -85,7 +86,7 @@ public class MinioStore implements StreamingStore<byte[]> {
     @Override
     public byte[] get(String id) {
         try (InputStream objectInputStream = getStream(id)) {
-            return IOStreamUtils.getBytesFromInputStream(objectInputStream);
+            return getBytesFromInputStream(objectInputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

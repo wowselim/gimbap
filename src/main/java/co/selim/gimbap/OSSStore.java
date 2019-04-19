@@ -2,10 +2,7 @@ package co.selim.gimbap;
 
 import co.selim.gimbap.api.StreamingStore;
 import co.selim.gimbap.util.IDGenerator;
-import co.selim.gimbap.util.IOStreamUtils;
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.common.auth.DefaultCredentialProvider;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.PutObjectRequest;
@@ -16,6 +13,8 @@ import java.io.InputStream;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static co.selim.gimbap.util.IOStreamUtilsKt.getBytesFromInputStream;
 
 /**
  * An OSS-backed StreamingStore implementation.
@@ -85,7 +84,7 @@ public class OSSStore implements StreamingStore<byte[]> {
     @Override
     public byte[] get(String id) {
         try (OSSObject object = client.getObject(bucketName, id)) {
-            return IOStreamUtils.getBytesFromInputStream(object.getObjectContent());
+            return getBytesFromInputStream(object.getObjectContent());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
