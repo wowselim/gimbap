@@ -16,7 +16,7 @@ dependencies {
     compileOnly('com.amazonaws:aws-java-sdk-s3:1.11.563')
     compileOnly('io.minio:minio:6.0.8')
     testImplementation('junit:junit:4.12')
-    testImplementation('com.github.marschall:memoryfilesystem:1.2.0')
+    testImplementation('com.github.marschall:memoryfilesystem:2.1.0')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
