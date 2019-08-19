@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     compileOnly('com.aliyun.oss:aliyun-sdk-oss:3.4.2')
-    compileOnly('com.amazonaws:aws-java-sdk-s3:1.11.570')
+    compileOnly('com.amazonaws:aws-java-sdk-s3:1.11.613')
     compileOnly('io.minio:minio:6.0.8')
     testImplementation('junit:junit:4.12')
     testImplementation('com.github.marschall:memoryfilesystem:2.1.0')
